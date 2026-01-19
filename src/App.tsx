@@ -9,9 +9,15 @@ export interface ITask {
   id: string;
   title: string;
   completed: boolean;
+  createdAt: string;
 }
 
-export type SortMode = "default" | "completed" | "uncompleted";
+export type SortMode =
+  | "default"
+  | "completed"
+  | "uncompleted"
+  | "fresh"
+  | "old";
 
 function App() {
   const [tasks, setTasks] = useState<ITask[]>(() => {
@@ -43,6 +49,12 @@ function App() {
           }
           return response.json();
         })
+        .then((data) =>
+          data.map((task: ITask) => ({
+            ...task,
+            createdAt: new Date(2026, 0, 1, 0, 0, 0).toISOString(),
+          })),
+        )
         .then((data) => setTasks(data || []))
         .catch((error) => console.log(error));
     }
@@ -57,14 +69,47 @@ function App() {
   }, [tasks]);
 
   const visibleTasks = useMemo(() => {
-    if (sortMode === "default") {
-      return tasks;
+    const taskCopy = [...tasks];
+    switch (sortMode) {
+      case "uncompleted":
+        return taskCopy.sort(
+          (first: ITask, second: ITask) => +first.completed - +second.completed,
+        );
+      case "completed":
+        return taskCopy.sort(
+          (first: ITask, second: ITask) => +second.completed - +first.completed,
+        );
+      case "old":
+        return taskCopy.sort((first: ITask, second: ITask) => {
+          if (
+            new Date(first.createdAt).getTime() -
+              new Date(second.createdAt).getTime() ===
+            0
+          ) {
+            return +first.completed - +second.completed;
+          }
+          return (
+            new Date(first.createdAt).getTime() -
+            new Date(second.createdAt).getTime()
+          );
+        });
+      case "fresh":
+        return taskCopy.sort((first: ITask, second: ITask) => {
+          if (
+            new Date(first.createdAt).getTime() -
+              new Date(second.createdAt).getTime() ===
+            0
+          ) {
+            return +first.completed - +second.completed;
+          }
+          return (
+            new Date(second.createdAt).getTime() -
+            new Date(first.createdAt).getTime()
+          );
+        });
+      default:
+        return taskCopy;
     }
-
-    const byCompleted = (first: ITask, second: ITask) =>
-      Number(first.completed) - Number(second.completed);
-    const sorted = [...tasks].sort(byCompleted);
-    return sortMode === "completed" ? sorted : sorted.reverse();
   }, [tasks, sortMode]);
 
   return (
@@ -77,7 +122,7 @@ function App() {
         tasks={visibleTasks}
         editTask={(newTask: ITask) =>
           setTasks((prev) =>
-            prev.map((task) => (task.id === newTask.id ? newTask : task))
+            prev.map((task) => (task.id === newTask.id ? newTask : task)),
           )
         }
         deleteTask={(id: string) =>
