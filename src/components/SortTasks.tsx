@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import type { SortMode } from "../App";
+import type { SortMode } from "../utils/constants.";
 
 interface IProps {
   sortTasks: (param: SortMode) => void;

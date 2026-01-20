@@ -1,6 +1,6 @@
 import type { FC } from "react";
-import type { ITask } from "../App";
 import Task from "./Task";
+import type { ITask } from "../utils/constants.";
 
 interface IProps {
   tasks: ITask[];

@@ -1,5 +1,5 @@
 import { useMemo, useState, type FC } from "react";
-import type { ITask } from "../App";
+import type { ITask } from "../utils/constants.";
 
 interface IProps {
   task: ITask;
