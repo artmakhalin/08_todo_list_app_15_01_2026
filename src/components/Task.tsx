@@ -1,4 +1,4 @@
-import { useState, type FC } from "react";
+import { useMemo, useState, type FC } from "react";
 import type { ITask } from "../App";
 
 interface IProps {
@@ -23,57 +23,67 @@ const Task: FC<IProps> = ({ task, editTask, deleteTask }) => {
     setEditMode(false);
   };
 
-  const isOld =
-    new Date().getTime() - new Date(task.createdAt).getTime() >
-    1000 * 60 * 60 * 24 * 7;
+  const isOld = useMemo(() => {
+    const week = 1000 * 60 * 60 * 24 * 7;
+    return new Date().getTime() - new Date(task.createdAt).getTime() > week;
+  }, [task.createdAt]);
+
+  const formattedDate = useMemo(() => {
+    return new Date(task.createdAt).toLocaleString();
+  }, [task.createdAt]);
 
   return (
     <div
-      className="d-flex align-items-center  border rounded my-3 p-3 gap-3"
-      style={{
-        backgroundColor: task.completed
-          ? "lightgray"
-          : isOld
-            ? "lightsalmon"
-            : "white",
-      }}
+      className={[
+        "task",
+        task.completed ? "task--completed" : "",
+        isOld && !task.completed ? "task--old" : "",
+      ].join(" ")}
     >
-      {editMode ? (
-        <input
-          className="form-control"
-          value={draft}
-          autoFocus
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={save}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") save();
-            if (e.key === "Escape") {
-              setDraft(task.title);
-              setEditMode(false);
-            }
-          }}
-        />
-      ) : (
-        <h4
-          style={{ textDecoration: task.completed ? "line-through" : "none" }}
-          onDoubleClick={() => setEditMode(true)}
-          className="m-0"
-        >
-          {task.title}
-        </h4>
-      )}
-      <span>{new Date(task.createdAt).toLocaleString()}</span>
-      <input
-        type="checkbox"
-        checked={task.completed}
-        onChange={(e) => editTask({ ...task, completed: e.target.checked })}
-      />
-      <button
-        className="btn btn-outline-danger btn-sm"
-        onClick={() => deleteTask(task.id)}
-      >
-        X
-      </button>
+      <div className="task_main">
+        {editMode ? (
+          <input
+            className="task_edit"
+            value={draft}
+            autoFocus
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={save}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") save();
+              if (e.key === "Escape") {
+                setDraft(task.title);
+                setEditMode(false);
+              }
+            }}
+          />
+        ) : (
+          <h4
+            className="task__title"
+            onDoubleClick={() => setEditMode(true)}
+            title="Double click to edit"
+          >
+            {task.title}
+          </h4>
+        )}
+        <div className="task__meta">
+          <span className="task__badge">User {task.userId}</span>
+          <span className="task__date">{formattedDate}</span>
+        </div>
+      </div>
+
+      <div className="task__actions">
+        <label className="task_check">
+          <input
+            type="checkbox"
+            checked={task.completed}
+            onChange={(e) => editTask({ ...task, completed: e.target.checked })}
+          />
+          <span>Done</span>
+        </label>
+        <button className="task__delete" onClick={() => deleteTask(task.id)}>
+          ✕
+        </button>
+      </div>
     </div>
   );
 };

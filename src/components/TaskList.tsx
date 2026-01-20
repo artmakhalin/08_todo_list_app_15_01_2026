@@ -10,18 +10,26 @@ interface IProps {
 
 const TaskList: FC<IProps> = ({ tasks, editTask, deleteTask }: IProps) => {
   return (
-    <div style={{
-      border: "1px solid #ccc",
-      borderRadius: "10px",
-      boxShadow: "0 0 30px #ccc",
-      margin: "30px auto 0",
-      padding: "30px",
-      backgroundColor: "whitesmoke",
-      maxWidth: "800px"
-    }}>
-      {tasks.map((e) => (
-        <Task key={e.id} task={e} editTask={editTask} deleteTask={deleteTask}></Task>
-      ))}
+    <div className="tasklist">
+      <div className="tasklist__header">
+        <h3 className="tasklist__title">Tasks</h3>
+        <span className="tasklist__count">{tasks.length}</span>
+      </div>
+
+      <div className="tasklist__items">
+        {tasks.length === 0 ? (
+          <div className="tasklist__empty">No tasks yet ✨</div>
+        ) : (
+          tasks.map((t) => (
+            <Task
+              key={t.id}
+              task={t}
+              editTask={editTask}
+              deleteTask={deleteTask}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 };

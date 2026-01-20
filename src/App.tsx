@@ -70,43 +70,30 @@ function App() {
 
   const visibleTasks = useMemo(() => {
     const taskCopy = [...tasks];
+
+    const byCompletedAsc = (a: ITask, b: ITask) => +a.completed - +b.completed;
+    const byCreatedAtAsc = (a: ITask, b: ITask) =>
+      Date.parse(a.createdAt) - Date.parse(b.createdAt);
+
+    const byCreatedAtDesc = (a: ITask, b: ITask) =>
+      Date.parse(b.createdAt) - Date.parse(a.createdAt);
+
+    const stable = (primary: number, a: ITask, b: ITask) =>
+      primary !== 0 ? primary : byCompletedAsc(a, b);
+
     switch (sortMode) {
       case "uncompleted":
-        return taskCopy.sort(
-          (first: ITask, second: ITask) => +first.completed - +second.completed,
-        );
+        return taskCopy.sort(byCompletedAsc);
       case "completed":
-        return taskCopy.sort(
-          (first: ITask, second: ITask) => +second.completed - +first.completed,
-        );
+        return taskCopy.sort(byCompletedAsc).reverse();
       case "old":
-        return taskCopy.sort((first: ITask, second: ITask) => {
-          if (
-            new Date(first.createdAt).getTime() -
-              new Date(second.createdAt).getTime() ===
-            0
-          ) {
-            return +first.completed - +second.completed;
-          }
-          return (
-            new Date(first.createdAt).getTime() -
-            new Date(second.createdAt).getTime()
-          );
-        });
+        return taskCopy.sort((first: ITask, second: ITask) =>
+          stable(byCreatedAtAsc(first, second), first, second)
+        );
       case "fresh":
-        return taskCopy.sort((first: ITask, second: ITask) => {
-          if (
-            new Date(first.createdAt).getTime() -
-              new Date(second.createdAt).getTime() ===
-            0
-          ) {
-            return +first.completed - +second.completed;
-          }
-          return (
-            new Date(second.createdAt).getTime() -
-            new Date(first.createdAt).getTime()
-          );
-        });
+        return taskCopy.sort((first: ITask, second: ITask) =>
+          stable(byCreatedAtDesc(first, second), first, second)
+        );
       default:
         return taskCopy;
     }
@@ -117,7 +104,7 @@ function App() {
       <NewTask
         addTask={(newTask: ITask) => setTasks((prev) => [newTask, ...prev])}
       />
-      <SortTasks sortTasks={setSortMode} />
+      <SortTasks sortTasks={setSortMode} value={sortMode} />
       <TaskList
         tasks={visibleTasks}
         editTask={(newTask: ITask) =>

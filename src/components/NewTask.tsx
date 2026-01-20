@@ -28,18 +28,11 @@ const NewTask: FC<IProps> = ({ addTask }) => {
     setUserId(1);
   };
   return (
-    <div
-      className="d-flex gap-4 align-items-end"
-      style={{
-        margin: "0 auto",
-        maxWidth: "650px",
-        paddingTop: "30px",
-      }}
-    >
-      <label className="w-25">
-        Enter user ID:
+    <div className="toolbar">
+      <label className="toolbar__field">
+        <span className="toolbar__label">User</span>
         <input
-          className="form-control"
+          className="toolbar__control"
           type="number"
           min={1}
           max={10}
@@ -47,22 +40,23 @@ const NewTask: FC<IProps> = ({ addTask }) => {
           onChange={(e) => setUserId(+e.target.value)}
         />
       </label>
-      <label className="flex-grow-1">
-        Enter new task:
+      <label className="toolbar__field toolbar__field--grow">
+        <span className="toolbar__label">Task</span>
         <input
-          className="form-control"
+          className="toolbar__control"
           value={title}
           type="text"
+          placeholder="Enter title.."
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSubmit()}
         />
       </label>
       <button
-        className="btn btn-primary"
+        className="toolbar__btn"
         onClick={onSubmit}
         disabled={!title.trim()}
       >
-        Add Task
+        Add
       </button>
     </div>
   );
