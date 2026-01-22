@@ -13,9 +13,29 @@ export interface IUser {
     phone: string
 }
 
-export type SortMode =
+export type SortTaskMode =
   | "default"
   | "completed"
   | "uncompleted"
   | "fresh"
   | "old";
+
+  export type SortUserMode = "default" | "nameAsc" |"nameDesc";
+
+  export function loadFromLocalStorage(key: string) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) {
+      return [];
+    }
+
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed;
+  } catch {
+    return [];
+  }
+}

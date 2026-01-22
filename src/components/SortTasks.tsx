@@ -1,9 +1,9 @@
 import type { FC } from "react";
-import type { SortMode } from "../utils/constants.";
+import type { SortTaskMode } from "../utils/constants.";
 
 interface IProps {
-  sortTasks: (param: SortMode) => void;
-  value: SortMode;
+  sortTasks: (param: SortTaskMode) => void;
+  value: SortTaskMode;
 }
 
 const SortTasks: FC<IProps> = ({ sortTasks, value }: IProps) => {
@@ -14,7 +14,7 @@ const SortTasks: FC<IProps> = ({ sortTasks, value }: IProps) => {
         <select
           className="toolbar__control"
           value={value}
-          onChange={(e) => sortTasks(e.currentTarget.value as SortMode)}
+          onChange={(e) => sortTasks(e.currentTarget.value as SortTaskMode)}
         >
           <option value="default">Default</option>
           <option value="completed">Completed First</option>

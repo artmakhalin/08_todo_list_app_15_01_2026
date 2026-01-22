@@ -4,35 +4,46 @@ import NewTask from "./components/NewTask";
 import TaskList from "./components/TaskList";
 import SortTasks from "./components/SortTasks";
 import { NavLink, Route, Routes } from "react-router-dom";
-import type { ITask, IUser, SortMode } from "./utils/constants.";
+import type {
+  ITask,
+  IUser,
+  SortTaskMode,
+  SortUserMode,
+} from "./utils/constants.";
 import UserList from "./components/UserList";
 import NewUser from "./components/NewUser";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "./redux/store";
+import {
+  createTask,
+  deleteTask,
+  editTask,
+  fetchTask,
+} from "./redux/taskAction";
+import {
+  createUser,
+  deleteUser,
+  editUser,
+  fetchUser,
+} from "./redux/userActions";
+import SortUsers from "./components/SortUsers";
 
 function App() {
-  const [tasks, setTasks] = useState<ITask[]>(() => {
-    try {
-      const raw = localStorage.getItem("tasks");
-      if (!raw) {
-        return [];
-      }
+  //4. Получение из глобального state данных и сеттеров и использование этих инструментов
+  const dispatch = useDispatch<AppDispatch>();
+  const tasks: ITask[] = useSelector(
+    (state: RootState) => state.taskManager.tasks,
+  );
 
-      const parsed = JSON.parse(raw);
-      if (!Array.isArray(parsed)) {
-        return [];
-      }
+  const users: IUser[] = useSelector(
+    (state: RootState) => state.userManager.users,
+  );
 
-      return parsed;
-    } catch {
-      return [];
-    }
-  });
-
-  const [users, setUsers] = useState<IUser[]>([]);
-
-  const [sortMode, setSortMode] = useState<SortMode>("default");
+  const [sortTaskMode, setSortTaskMode] = useState<SortTaskMode>("default");
+  const [sortUserMode, setSortUserMode] = useState<SortUserMode>("default");
 
   useEffect(() => {
-    if (!localStorage.getItem("tasks")) {
+    if (tasks.length === 0) {
       fetch("https://jsonplaceholder.typicode.com/todos?_limit=10")
         .then((response) => {
           if (!response.ok) {
@@ -46,28 +57,31 @@ function App() {
             createdAt: new Date(2026, 0, 1, 0, 0, 0).toISOString(),
           })),
         )
-        .then((data) => setTasks(data || []))
+        .then((data) => dispatch(fetchTask(data || [])))
         .catch((error) => console.log(error));
     }
 
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Error when fetch data");
-        }
-        return response.json();
-      })
-      .then((data) => setUsers(data || []))
-      .catch((error) => console.log(error));
-  }, []);
+    if (users.length === 0) {
+      fetch("https://jsonplaceholder.typicode.com/users")
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Error when fetch data");
+          }
+          return response.json();
+        })
+        .then((data) => dispatch(fetchUser(data || [])))
+        .catch((error) => console.log(error));
+    }
+  }, [dispatch]);
 
   useEffect(() => {
     try {
       localStorage.setItem("tasks", JSON.stringify(tasks));
+      localStorage.setItem("users", JSON.stringify(users));
     } catch (err) {
       console.log(err);
     }
-  }, [tasks]);
+  }, [tasks, users]);
 
   const visibleTasks = useMemo(() => {
     const taskCopy = [...tasks];
@@ -82,7 +96,7 @@ function App() {
     const stable = (primary: number, a: ITask, b: ITask) =>
       primary !== 0 ? primary : byCompletedAsc(a, b);
 
-    switch (sortMode) {
+    switch (sortTaskMode) {
       case "uncompleted":
         return taskCopy.sort(byCompletedAsc);
       case "completed":
@@ -98,7 +112,24 @@ function App() {
       default:
         return taskCopy;
     }
-  }, [tasks, sortMode]);
+  }, [tasks, sortTaskMode]);
+
+  const visibleUsers = useMemo(() => {
+    const usersCopy = [...users];
+
+    switch (sortUserMode) {
+      case "nameAsc":
+        return usersCopy.sort((first: IUser, second: IUser) =>
+          first.name.localeCompare(second.name),
+        );
+      case "nameDesc":
+        return usersCopy.sort((first: IUser, second: IUser) =>
+          second.name.localeCompare(first.name),
+        );
+      default:
+        return usersCopy;
+    }
+  }, [users, sortUserMode]);
 
   return (
     <div>
@@ -116,23 +147,13 @@ function App() {
           element={
             <>
               <NewTask
-                addTask={(newTask: ITask) =>
-                  setTasks((prev) => [newTask, ...prev])
-                }
+                addTask={(newTask: ITask) => dispatch(createTask(newTask))}
               />
-              <SortTasks sortTasks={setSortMode} value={sortMode} />
+              <SortTasks sortTasks={setSortTaskMode} value={sortTaskMode} />
               <TaskList
                 tasks={visibleTasks}
-                editTask={(newTask: ITask) =>
-                  setTasks((prev) =>
-                    prev.map((task) =>
-                      task.id === newTask.id ? newTask : task,
-                    ),
-                  )
-                }
-                deleteTask={(id: string) =>
-                  setTasks((prev) => prev.filter((task) => task.id !== id))
-                }
+                editTask={(newTask: ITask) => dispatch(editTask(newTask))}
+                deleteTask={(id: string) => dispatch(deleteTask(id))}
               />
             </>
           }
@@ -142,22 +163,13 @@ function App() {
           element={
             <>
               <NewUser
-                addUser={(newUser: IUser) =>
-                  setUsers((prev) => [newUser, ...prev])
-                }
+                addUser={(newUser: IUser) => dispatch(createUser(newUser))}
               />
+              <SortUsers sortUsers={setSortUserMode} value={sortUserMode} />
               <UserList
-                users={users}
-                editUser={(newUser: IUser) =>
-                  setUsers((prev) =>
-                    prev.map((user) =>
-                      user.id === newUser.id ? newUser : user,
-                    ),
-                  )
-                }
-                deleteUser={(id: string) =>
-                  setUsers((prev) => prev.filter((user) => user.id !== id))
-                }
+                users={visibleUsers}
+                editUser={(newUser: IUser) => dispatch(editUser(newUser))}
+                deleteUser={(id: string) => dispatch(deleteUser(id))}
               />
             </>
           }
