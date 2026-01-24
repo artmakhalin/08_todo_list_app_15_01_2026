@@ -1,5 +1,5 @@
 import { useState, type FC } from "react";
-import type { IUser } from "../utils/constants.";
+import type { IUser } from "../utils/constants";
 
 interface IProps {
   user: IUser;
@@ -25,10 +25,10 @@ const User: FC<IProps> = ({ user, editUser, deleteUser }) => {
 
   return (
     <div className="task">
-      <div className="task_main">
+      <div className="task__main">
         {editMode ? (
           <input
-            className="task_edit"
+            className="task__edit"
             value={draft}
             autoFocus
             onChange={(e) => setDraft(e.target.value)}

@@ -1,5 +1,5 @@
 import { useMemo, useState, type FC } from "react";
-import type { ITask } from "../utils/constants.";
+import type { ITask } from "../utils/constants";
 
 interface IProps {
   task: ITask;
@@ -40,10 +40,10 @@ const Task: FC<IProps> = ({ task, editTask, deleteTask }) => {
         isOld && !task.completed ? "task--old" : "",
       ].join(" ")}
     >
-      <div className="task_main">
+      <div className="task__main">
         {editMode ? (
           <input
-            className="task_edit"
+            className="task__edit"
             value={draft}
             autoFocus
             onChange={(e) => setDraft(e.target.value)}
@@ -72,7 +72,7 @@ const Task: FC<IProps> = ({ task, editTask, deleteTask }) => {
       </div>
 
       <div className="task__actions">
-        <label className="task_check">
+        <label className="task__check">
           <input
             type="checkbox"
             checked={task.completed}

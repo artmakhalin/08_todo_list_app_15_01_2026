@@ -1,6 +1,6 @@
 import { useState, type FC } from "react";
 import { v4 } from "uuid";
-import type { IUser } from "../utils/constants.";
+import type { IUser } from "../utils/constants";
 
 interface IProps {
   addUser: (newUser: IUser) => void;
@@ -57,7 +57,7 @@ const NewUser: FC<IProps> = ({ addUser }) => {
         <input
           className="toolbar__control"
           value={phone}
-          type="phone"
+          type="tel"
           placeholder="Enter phone.."
           onChange={(e) => setPhone(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && onSubmit()}

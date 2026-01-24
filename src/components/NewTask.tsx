@@ -1,6 +1,6 @@
 import { useState, type FC } from "react";
 import { v4 } from "uuid";
-import type { ITask } from "../utils/constants.";
+import type { ITask } from "../utils/constants";
 
 interface IProps {
   addTask: (newTask: ITask) => void;

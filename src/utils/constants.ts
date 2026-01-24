@@ -7,10 +7,10 @@ export interface ITask {
 }
 
 export interface IUser {
-    id: string,
-    name: string, 
-    email: string,
-    phone: string
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
 }
 
 export type SortTaskMode =
@@ -20,9 +20,11 @@ export type SortTaskMode =
   | "fresh"
   | "old";
 
-  export type SortUserMode = "default" | "nameAsc" |"nameDesc";
+export type SortUserMode = "default" | "nameAsc" | "nameDesc";
 
-  export function loadFromLocalStorage(key: string) {
+export type ThemeType = "light" | "dark";
+
+export function loadFromLocalStorage<T>(key: string): T[] {
   try {
     const raw = localStorage.getItem(key);
     if (!raw) {
@@ -30,11 +32,7 @@ export type SortTaskMode =
     }
 
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-
-    return parsed;
+    return Array.isArray(parsed) ? (parsed as T[]) : [];
   } catch {
     return [];
   }

@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import type { IUser } from "../utils/constants.";
+import type { IUser } from "../utils/constants";
 import User from "./User";
 
 interface IProps {

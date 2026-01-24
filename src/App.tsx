@@ -9,7 +9,7 @@ import type {
   IUser,
   SortTaskMode,
   SortUserMode,
-} from "./utils/constants.";
+} from "./utils/constants";
 import UserList from "./components/UserList";
 import NewUser from "./components/NewUser";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,9 +27,10 @@ import {
   fetchUser,
 } from "./redux/userActions";
 import SortUsers from "./components/SortUsers";
+import { setTheme } from "./redux/themeAction";
 
 function App() {
-  //4. Получение из глобального state данных и сеттеров и использование этих инструментов
+  //4. Получение из глобального state данных и сеттеров и использование этих инструментов - useSelector() и setter - useDispatch()
   const dispatch = useDispatch<AppDispatch>();
   const tasks: ITask[] = useSelector(
     (state: RootState) => state.taskManager.tasks,
@@ -41,6 +42,8 @@ function App() {
 
   const [sortTaskMode, setSortTaskMode] = useState<SortTaskMode>("default");
   const [sortUserMode, setSortUserMode] = useState<SortUserMode>("default");
+
+  const theme = useSelector((state: RootState) => state.themeToggle.theme);
 
   useEffect(() => {
     if (tasks.length === 0) {
@@ -60,7 +63,9 @@ function App() {
         .then((data) => dispatch(fetchTask(data || [])))
         .catch((error) => console.log(error));
     }
+  }, [tasks.length, dispatch]);
 
+  useEffect(() => {
     if (users.length === 0) {
       fetch("https://jsonplaceholder.typicode.com/users")
         .then((response) => {
@@ -72,16 +77,7 @@ function App() {
         .then((data) => dispatch(fetchUser(data || [])))
         .catch((error) => console.log(error));
     }
-  }, [dispatch]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      localStorage.setItem("users", JSON.stringify(users));
-    } catch (err) {
-      console.log(err);
-    }
-  }, [tasks, users]);
+  }, [users.length, dispatch]);
 
   const visibleTasks = useMemo(() => {
     const taskCopy = [...tasks];
@@ -132,7 +128,13 @@ function App() {
   }, [users, sortUserMode]);
 
   return (
-    <div>
+    <div
+      className={
+        theme === "light"
+          ? "bg-tertiary text-secondary"
+          : "text-tertiary bg-secondary"
+      }
+    >
       <nav className="d-flex justify-content-center gap-3 py-4">
         <NavLink to="/task_manager" className="btn btn-info">
           Task Manager
@@ -140,6 +142,20 @@ function App() {
         <NavLink to="/phone_book" className="btn btn-info">
           Phone Book
         </NavLink>
+        <div className="form-check form-switch">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            role="switch"
+            id="switchCheckDefault"
+            onChange={() =>
+              dispatch(setTheme(theme === "light" ? "dark" : "light"))
+            }
+          />
+          <label className="form-check-label" htmlFor="switchCheckDefault">
+            {theme} theme
+          </label>
+        </div>
       </nav>
       <Routes>
         <Route
