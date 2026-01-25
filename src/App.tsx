@@ -13,37 +13,37 @@ import type {
 import UserList from "./components/UserList";
 import NewUser from "./components/NewUser";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "./redux/store";
+import SortUsers from "./components/SortUsers";
+import type { AppDispatchRTK, RootStateRTK } from "./reduxRTK/storeRTK";
 import {
   createTask,
   deleteTask,
   editTask,
   fetchTask,
-} from "./redux/taskAction";
+} from "./reduxRTK/taskSlice";
 import {
   createUser,
   deleteUser,
   editUser,
   fetchUser,
-} from "./redux/userActions";
-import SortUsers from "./components/SortUsers";
-import { setTheme } from "./redux/themeAction";
+} from "./reduxRTK/userSlice";
+import { setTheme } from "./reduxRTK/themeSlice";
 
 function App() {
   //4. Получение из глобального state данных и сеттеров и использование этих инструментов - useSelector() и setter - useDispatch()
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch: AppDispatchRTK = useDispatch();
   const tasks: ITask[] = useSelector(
-    (state: RootState) => state.taskManager.tasks,
+    (state: RootStateRTK) => state.taskManager.tasks,
   );
 
   const users: IUser[] = useSelector(
-    (state: RootState) => state.userManager.users,
+    (state: RootStateRTK) => state.userManager.users,
   );
 
   const [sortTaskMode, setSortTaskMode] = useState<SortTaskMode>("default");
   const [sortUserMode, setSortUserMode] = useState<SortUserMode>("default");
 
-  const theme = useSelector((state: RootState) => state.themeToggle.theme);
+  const theme = useSelector((state: RootStateRTK) => state.themeToggle.theme);
 
   useEffect(() => {
     if (tasks.length === 0) {
@@ -96,7 +96,7 @@ function App() {
       case "uncompleted":
         return taskCopy.sort(byCompletedAsc);
       case "completed":
-        return taskCopy.sort(byCompletedAsc).reverse();
+        return [...taskCopy].sort(byCompletedAsc).reverse();
       case "old":
         return taskCopy.sort((first: ITask, second: ITask) =>
           stable(byCreatedAtAsc(first, second), first, second),
@@ -127,32 +127,47 @@ function App() {
     }
   }, [users, sortUserMode]);
 
+  const userNameById = useMemo(() => {
+    const map = new Map<string, string>();
+    users.forEach((u) => map.set(String(u.id), u.name));
+    return map;
+  }, [users]);
+
+  const findUserById = (id: string) => {
+    return userNameById.get(id) ?? "Unknown User";
+  };
+
   return (
-    <div
-      className={
-        theme === "light"
-          ? "bg-tertiary text-secondary"
-          : "text-tertiary bg-secondary"
-      }
-    >
-      <nav className="d-flex justify-content-center gap-3 py-4">
-        <NavLink to="/task_manager" className="btn btn-info">
-          Task Manager
-        </NavLink>
-        <NavLink to="/phone_book" className="btn btn-info">
-          Phone Book
-        </NavLink>
-        <div className="form-check form-switch">
+    <div className={theme === "light" ? "app theme-light" : "app theme-dark"}>
+      <nav className="nav-bar">
+        <div className="nav__group">
+          <NavLink
+            to="/task_manager"
+            className={({ isActive }) =>
+              `nav__link ${isActive ? "nav__link--active" : ""}`
+            }
+          >
+            Task Manager
+          </NavLink>
+          <NavLink
+            to="/phone_book"
+            className={({ isActive }) =>
+              `nav__link ${isActive ? "nav__link--active" : ""}`
+            }
+          >
+            Phone Book
+          </NavLink>
+        </div>
+        <div className="form-check form-switch theme-switch">
           <input
             className="form-check-input"
             type="checkbox"
             role="switch"
-            id="switchCheckDefault"
-            onChange={() =>
-              dispatch(setTheme(theme === "light" ? "dark" : "light"))
-            }
+            id="switchTheme"
+            checked={theme === "dark"}
+            onChange={() => dispatch(setTheme(theme))}
           />
-          <label className="form-check-label" htmlFor="switchCheckDefault">
+          <label className="form-check-label" htmlFor="switchTheme">
             {theme} theme
           </label>
         </div>
@@ -170,6 +185,7 @@ function App() {
                 tasks={visibleTasks}
                 editTask={(newTask: ITask) => dispatch(editTask(newTask))}
                 deleteTask={(id: string) => dispatch(deleteTask(id))}
+                findUser={findUserById}
               />
             </>
           }

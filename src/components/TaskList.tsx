@@ -6,9 +6,10 @@ interface IProps {
   tasks: ITask[];
   editTask: (task: ITask) => void;
   deleteTask: (id: string) => void;
+  findUser: (id: string) => string
 }
 
-const TaskList: FC<IProps> = ({ tasks, editTask, deleteTask }: IProps) => {
+const TaskList: FC<IProps> = ({ tasks, editTask, deleteTask, findUser }: IProps) => {
   return (
     <div className="tasklist">
       <div className="tasklist__header">
@@ -26,6 +27,7 @@ const TaskList: FC<IProps> = ({ tasks, editTask, deleteTask }: IProps) => {
               task={t}
               editTask={editTask}
               deleteTask={deleteTask}
+              findUser={findUser}
             />
           ))
         )}

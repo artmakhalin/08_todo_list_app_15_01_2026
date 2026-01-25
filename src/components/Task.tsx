@@ -5,9 +5,10 @@ interface IProps {
   task: ITask;
   editTask: (task: ITask) => void;
   deleteTask: (id: string) => void;
+  findUser: (id: string) => string;
 }
 
-const Task: FC<IProps> = ({ task, editTask, deleteTask }) => {
+const Task: FC<IProps> = ({ task, editTask, deleteTask, findUser }) => {
   const [editMode, setEditMode] = useState(false);
   const [draft, setDraft] = useState(task.title);
 
@@ -66,7 +67,7 @@ const Task: FC<IProps> = ({ task, editTask, deleteTask }) => {
           </h4>
         )}
         <div className="task__meta">
-          <span className="task__badge">User {task.userId}</span>
+          <span className="task__badge">{findUser(String(task.userId))}</span>
           <span className="task__date">{formattedDate}</span>
         </div>
       </div>
