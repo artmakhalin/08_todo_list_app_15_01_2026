@@ -1,73 +1,169 @@
-# React + TypeScript + Vite
+# ✅ Task Manager + 📒 Phone Book (React + TypeScript + Redux)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean and minimal **React + TypeScript** app that combines two small modules:
 
-Currently, two official plugins are available:
+- ✅ **Task Manager** — create, edit, complete, sort tasks, with persistent storage
+- 📒 **Phone Book** — manage contacts (CRUD), sort users, clean UI
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The project is designed as a **portfolio-ready pet project** with a focus on **best practices**, **code readability**, and **modern React patterns**.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## ✨ Features
 
-## Expanding the ESLint configuration
+### ✅ Task Manager
+- ➕ Create tasks
+- ✏️ Inline edit (double click)
+- ✅ Toggle completion state
+- 🗑 Delete tasks
+- 🕒 Task timestamps (`createdAt`)
+- 🔥 Highlight old tasks (7+ days)
+- 🔍 Sorting:
+  - Default
+  - Completed / Uncompleted first
+  - Fresh / Old first
+- 👤 Displays user name based on `userId`
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 📒 Phone Book
+- ➕ Add new users
+- ✏️ Inline edit
+- 🗑 Delete users
+- 🔤 Sorting by name:
+  - A → Z
+  - Z → A
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 🎨 UI / UX
+- 🌗 Light / Dark theme toggle
+- 💎 Minimal glass-style UI (custom CSS + variables)
+- 📱 Responsive layout (mobile-friendly)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 💾 Persistence
+- Local storage support for tasks & users  
+  (`store.subscribe()` saves state automatically)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## 🧰 Tech Stack
+
+- ⚛️ **React**
+- 🟦 **TypeScript**
+- 🧭 **React Router**
+- 🧠 **Redux Toolkit (RTK)** *(active version)*
+- 🧩 **Classic Redux (legacy version included for learning)**
+- 🎨 **Bootstrap (basic utility usage) + custom CSS**
+- 🔑 **UUID** for unique IDs
+- 🌐 **JSONPlaceholder API** for initial demo data
+
+---
+
+## 🗂 Project Structure
+
+```txt
+src/
+  components/
+    NewTask.tsx
+    Task.tsx
+    TaskList.tsx
+    SortTasks.tsx
+
+    NewUser.tsx
+    User.tsx
+    UserList.tsx
+    SortUsers.tsx
+
+  redux/              # ✅ Classic Redux version (legacy)
+    store.ts
+    taskReducer.ts
+    userReducer.ts
+    taskAction.ts
+    userActions.ts
+
+  reduxRTK/           # ✅ Redux Toolkit (connected by default)
+    storeRTK.ts
+    taskSlice.ts
+    userSlice.ts
+    themeSlice.ts
+
+  utils/
+    constants.ts
+
+  App.tsx
+  main.tsx
+```
+## 🚀 Getting Started
+1) Clone the repo
+git clone <your-repo-url>
+cd <your-repo-folder>
+
+2) Install dependencies
+npm install
+
+3) Run the project
+npm run dev
+
+
+App will be available at:
+
+http://localhost:5173
+
+## 🔄 Redux Versions
+
+This repository includes two Redux implementations:
+
+### ✅ 1) Redux Toolkit (RTK) — (currently connected)
+
+Used in production by default:
+```
+import { storeRTK } from "./reduxRTK/storeRTK";
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Why RTK?
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- Less boilerplate
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Built-in Immer (safe mutations)
+
+- More readable slices
+
+- Industry standard
+
+### 🧩 2) Classic Redux (legacy)
+
+Kept for educational purposes:
 ```
+src/redux/
+```
+
+Includes:
+
+- manual reducers
+
+- manual action types
+
+- classic store creation
+
+✅ Great for understanding how Redux works under the hood.
+
+## 🌐 Data Source
+
+The app loads initial demo data from:
+
+- Tasks: https://jsonplaceholder.typicode.com/todos?_limit=10
+
+- Users: https://jsonplaceholder.typicode.com/users
+
+After first load, everything is stored inside localStorage.
+
+## 📌 Notes / Improvements Ideas
+
+If I continue improving the project, I would add:
+
+- ⏳ Loading / error UI for async fetch
+
+- 🔍 Search (tasks & users)
+
+- ✅ Filters (only completed / active tasks)
+
+- 📦 Pagination for large lists
+
+- 🧪 Tests (React Testing Library)
