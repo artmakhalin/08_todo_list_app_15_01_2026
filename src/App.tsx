@@ -19,25 +19,25 @@ import {
   createTask,
   deleteTask,
   editTask,
-  fetchTask,
+  fetchTaskRTK,
 } from "./reduxRTK/taskSlice";
 import {
   createUser,
   deleteUser,
   editUser,
-  fetchUser,
+  fetchUserRTK,
 } from "./reduxRTK/userSlice";
 import { setTheme } from "./reduxRTK/themeSlice";
 
 function App() {
   //4. Получение из глобального state данных и сеттеров и использование этих инструментов - useSelector() и setter - useDispatch()
   const dispatch: AppDispatchRTK = useDispatch();
-  const tasks: ITask[] = useSelector(
-    (state: RootStateRTK) => state.taskManager.tasks,
+  const { tasks, errorTask, loadingTask } = useSelector(
+    (state: RootStateRTK) => state.taskManager,
   );
 
-  const users: IUser[] = useSelector(
-    (state: RootStateRTK) => state.userManager.users,
+  const { users, errorUser, loadingUser } = useSelector(
+    (state: RootStateRTK) => state.userManager,
   );
 
   const [sortTaskMode, setSortTaskMode] = useState<SortTaskMode>("default");
@@ -47,35 +47,13 @@ function App() {
 
   useEffect(() => {
     if (tasks.length === 0) {
-      fetch("https://jsonplaceholder.typicode.com/todos?_limit=10")
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Error when fetch data");
-          }
-          return response.json();
-        })
-        .then((data) =>
-          data.map((task: ITask) => ({
-            ...task,
-            createdAt: new Date(2026, 0, 1, 0, 0, 0).toISOString(),
-          })),
-        )
-        .then((data) => dispatch(fetchTask(data || [])))
-        .catch((error) => console.log(error));
+      dispatch(fetchTaskRTK());
     }
   }, [tasks.length, dispatch]);
 
   useEffect(() => {
     if (users.length === 0) {
-      fetch("https://jsonplaceholder.typicode.com/users")
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Error when fetch data");
-          }
-          return response.json();
-        })
-        .then((data) => dispatch(fetchUser(data || [])))
-        .catch((error) => console.log(error));
+      dispatch(fetchUserRTK());
     }
   }, [users.length, dispatch]);
 
@@ -181,6 +159,12 @@ function App() {
                 addTask={(newTask: ITask) => dispatch(createTask(newTask))}
               />
               <SortTasks sortTasks={setSortTaskMode} value={sortTaskMode} />
+              {loadingTask && (
+                <div className="tasklist__empty">⏳ Loading tasks...</div>
+              )}
+              {errorTask && (
+                <div className="tasklist__empty">❌ {errorTask}</div>
+              )}
               <TaskList
                 tasks={visibleTasks}
                 editTask={(newTask: ITask) => dispatch(editTask(newTask))}
@@ -198,6 +182,12 @@ function App() {
                 addUser={(newUser: IUser) => dispatch(createUser(newUser))}
               />
               <SortUsers sortUsers={setSortUserMode} value={sortUserMode} />
+              {loadingUser && (
+                <div className="tasklist__empty">⏳ Loading users...</div>
+              )}
+              {errorUser && (
+                <div className="tasklist__empty">❌ {errorUser}</div>
+              )}
               <UserList
                 users={visibleUsers}
                 editUser={(newUser: IUser) => dispatch(editUser(newUser))}
